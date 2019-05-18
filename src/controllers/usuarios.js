@@ -6,13 +6,22 @@ const {
     generateToken
 } = require('../utils/token')
 
+const {
+    isCPF
+} = require('../utils/customValidators')
+
 function cadastro(req, res, next) {
     const usuario = req.body;
+
+    if (!isCPF(usuario.cpf)) {
+        res.status(422).send('CPF invalido');
+    }
 
     Usuario.create({
             nome: usuario.nome,
             email: usuario.email,
             nascimento: usuario.nascimento,
+            cpf: usuario.cpf,
             senha: usuario.senha, // estudar sobre hash de senha com bcrypt
         })
         .then(function(usuarioCriado) {
@@ -64,6 +73,7 @@ function edicao(req, res, next) {
                         nome: body.nome,
                         email: body.email,
                         nascimento: body.nascimento,
+                        cpf: body.cpf,
                         senha: body.senha, // criar uma específica para alterar a senha
                     })
                     .then(function(usuarioAtualizado) {
