@@ -10,6 +10,9 @@ const {
     isCPF
 } = require('../utils/customValidators')
 
+const bcrypt = require('bcryptjs')
+const saltRounds = 10
+
 function cadastro(req, res, next) {
     const usuario = req.body;
 
@@ -22,12 +25,13 @@ function cadastro(req, res, next) {
             email: usuario.email,
             nascimento: usuario.nascimento,
             cpf: usuario.cpf,
-            senha: usuario.senha, // estudar sobre hash de senha com bcrypt
+            senha: bcrypt.hashSync(usuario.senha, saltRounds) // estudar sobre hash de senha com bcrypt
         })
         .then(function(usuarioCriado) {
             // usuário inserido com sucesso
-            delete usuarioCriado.senha;
-            res.status(201).json(usuarioCriado)
+            const usuarioJson = usuarioCriado.toJSON()
+            delete usuarioJson.senha;
+            res.status(201).json(usuarioJson)
         })
         .catch(function(error) {
             // falha ao inserir o usuário
