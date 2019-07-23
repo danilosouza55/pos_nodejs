@@ -3,7 +3,7 @@ const {
 } = require('../models/index')
 
 const {
-    generateToken
+    generateToken, compare
 } = require('../utils/token')
 
 const {
@@ -21,19 +21,19 @@ function cadastro(req, res, next) {
     }
 
     Usuario.create({
-            nome: usuario.nome,
-            email: usuario.email,
-            nascimento: usuario.nascimento,
-            cpf: usuario.cpf,
-            senha: bcrypt.hashSync(usuario.senha, saltRounds) // estudar sobre hash de senha com bcrypt
-        })
-        .then(function(usuarioCriado) {
+        nome: usuario.nome,
+        email: usuario.email,
+        nascimento: usuario.nascimento,
+        cpf: usuario.cpf,
+        senha: bcrypt.hashSync(usuario.senha, saltRounds) // estudar sobre hash de senha com bcrypt
+    })
+        .then(function (usuarioCriado) {
             // usuário inserido com sucesso
             const usuarioJson = usuarioCriado.toJSON()
             delete usuarioJson.senha;
             res.status(201).json(usuarioJson)
         })
-        .catch(function(error) {
+        .catch(function (error) {
             // falha ao inserir o usuário
             if (Array.isArray(error.errors)) {
                 const sequelizeError = error.errors[0]
@@ -51,7 +51,7 @@ function buscaPorId(req, res, next) {
     const usuarioId = req.params.usuarioId
 
     Usuario.findByPk(usuarioId)
-        .then(function(usuario) {
+        .then(function (usuario) {
             if (usuario) {
                 const usuarioJson = usuario.toJSON()
                 delete usuarioJson.senha
@@ -60,7 +60,7 @@ function buscaPorId(req, res, next) {
                 res.status(404).send()
             }
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.log(error)
             res.status(422).send()
         })
@@ -71,16 +71,16 @@ function edicao(req, res, next) {
     const body = req.body
 
     Usuario.findByPk(usuarioId)
-        .then(function(usuario) {
+        .then(function (usuario) {
             if (usuario) {
                 return usuario.update({
-                        nome: body.nome,
-                        email: body.email,
-                        nascimento: body.nascimento,
-                        cpf: body.cpf,
-                        senha: body.senha, // criar uma específica para alterar a senha
-                    })
-                    .then(function(usuarioAtualizado) {
+                    nome: body.nome,
+                    email: body.email,
+                    nascimento: body.nascimento,
+                    cpf: body.cpf,
+                    senha: bcrypt.hashSync(body.senha, saltRounds) // criar uma específica para alterar a senha
+                })
+                    .then(function (usuarioAtualizado) {
                         const usuarioJson = usuarioAtualizado.toJSON()
                         delete usuarioJson.senha
                         res.status(200).json(usuarioJson)
@@ -89,7 +89,7 @@ function edicao(req, res, next) {
                 res.status(404).send()
             }
         })
-        .catch(function(error) {
+        .catch(function (error) {
             console.log(error)
             res.status(422).send()
         })
@@ -100,26 +100,28 @@ function login(req, res, next) {
     // autenticação
     const email = req.body.email;
     const senha = req.body.senha;
+    console.log(req.body)
+    Usuario.findOne({
+        attributes: ['id', 'nome', 'email', 'senha'],
+        where: { email: email }
+    }).then(function (usuario) {
+        if (usuario) {
+            compare(senha, usuario.senha)
+                .then((passwordMatch) => {
+                    if (!passwordMatch) {
+                        return res.status(401).send();
+                    }
 
-    const payload = [{
-        id: 1,
-        nome: 'Danilo',
-        email: email,
-        senha: senha
-    }]
+                    const usuarioJson = usuario.toJSON();
+                    const token = generateToken(usuarioJson)
 
-    console.log(payload[0].senha)
-
-    if (payload[0].email == 'admin@gmail.com' && payload[0].senha == 'senha123') {
-        // usuário autenticado com sucesso
-        const token = generateToken(payload[0])
-        res.json({
-            token
-        })
-    } else {
-        // email ou senha inválidos
-        res.status(401).send('E-mail ou senha incorretos')
-    }
+                    res.json({ token })
+                })
+        } else {
+            // email ou senha inválidos
+            res.status(401).send('E-mail ou senha incorretos')
+        }
+    })
 }
 
 module.exports = {

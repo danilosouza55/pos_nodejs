@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
  */
 const SECRET_KEY = 'luSY43@]5JX%ck>so({*w(h{p4Wg.9';
 
+const bcrypt = require('bcryptjs')
 /**
  * Middleware que verifica a validade e decodifica o token de autenticação presente no header 'x-access-token'.
  * 
@@ -36,7 +37,12 @@ function generateToken(payload) {
     return token;
 }
 
+const compare = function(password, hash) {
+    return bcrypt.compare(password, hash);
+}
+
 module.exports = {
     authenticationMiddleware,
     generateToken,
+    compare
 };
