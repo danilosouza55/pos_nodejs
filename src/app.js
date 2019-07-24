@@ -4,12 +4,14 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const validator = require('express-validator');
+var cors = require('cors');
 
 const routes = require('./routes');
 const customValidators = require('./utils/customValidators');
 
 const app = express();
 
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

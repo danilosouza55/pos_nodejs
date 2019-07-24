@@ -100,7 +100,6 @@ function login(req, res, next) {
     // autenticação
     const email = req.body.email;
     const senha = req.body.senha;
-    console.log(req.body)
     Usuario.findOne({
         attributes: ['id', 'nome', 'email', 'senha'],
         where: { email: email }
