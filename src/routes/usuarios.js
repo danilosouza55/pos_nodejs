@@ -27,7 +27,6 @@ router.post('/login',
 
 // POST /usuarios
 router.post('/',
-    authenticationMiddleware,
     controller.cadastro,
 );
 
