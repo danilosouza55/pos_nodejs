@@ -42,5 +42,11 @@ router.get('/:usuarioId',
     controller.buscaPorId,
 );
 
+// GET /usuarios/4
+router.get('/',
+    controller.listagem,
+);
+
+
 
 module.exports = router;

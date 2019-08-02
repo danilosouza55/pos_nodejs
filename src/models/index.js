@@ -57,7 +57,11 @@ const Tarefa = sequelize.define('tarefa', {
         type: Sequelize.STRING(500),
         allowNull: false
     },
-    concluido: {
+    descricao: {
+        type: Sequelize.STRING(500),
+        allowNull: false
+    },
+    concluida: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
     }

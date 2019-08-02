@@ -10,7 +10,8 @@ function cadastro(req, res, next) {
 
     Tarefa.create({
             titulo: tarefa.titulo,
-            concluido: tarefa.concluido,
+            descricao: tarefa.descricao,
+            concluida: tarefa.concluida,
             usuarioId: usuario.id,
         })
         .then(function(usuarioCriado) {
@@ -24,7 +25,7 @@ function cadastro(req, res, next) {
 
 function listagem(req, res, next) {
     const titulo = req.query.titulo;
-    const concluido = req.query.concluido;
+    const concluida = req.query.concluida;
     const usuarioId = req.query.usuarioId;
 
     const where = {};
@@ -33,15 +34,15 @@ function listagem(req, res, next) {
             [Op.like]: '%' + titulo + '%'
         }
     }
-    if (concluido) {
-        where.concluido = concluido
+    if (concluida) {
+        where.concluida = concluida
     }
     if (usuarioId) {
         where.usuarioId = usuarioId
     }
 
     Tarefa.findAll({
-            attributes: ['id', 'titulo', 'concluido', 'usuarioId'],
+            attributes: ['id', 'titulo', 'descricao', 'concluida', 'usuarioId'],
             where
         })
         .then(function(tarefas) {
@@ -80,6 +81,7 @@ function edicao(req, res, next) {
             if (tarefa) {
                 return tarefa.update({
                         titulo: body.titulo,
+                        descricao: body.descricao,
                         concluida: body.concluida,
                         usuarioId: body.usuarioId,
                     })

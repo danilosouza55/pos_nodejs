@@ -3,7 +3,7 @@ const {
 } = require('../models/index')
 
 const {
-    generateToken, compare
+    generateToken, compare, authenticationMiddleware
 } = require('../utils/token')
 
 const {
@@ -95,6 +95,19 @@ function edicao(req, res, next) {
         })
 }
 
+function listagem(req, res, next) {
+    Usuario.findAll({
+        attributes: ['id', 'nome', 'nascimento', 'email', 'senha', 'cpf'], 
+    })
+    .then(function(usuarios) {
+        res.status(200).json(usuarios)
+    })
+    .catch(function(error) {
+        console.log(error)
+        res.status(422).send()
+    })
+}
+
 function login(req, res, next) {
     // recebe as credenciais do usuário e valida com as informações de
     // autenticação
@@ -128,4 +141,5 @@ module.exports = {
     buscaPorId,
     edicao,
     login,
+    listagem
 };
